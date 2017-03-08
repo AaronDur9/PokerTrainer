@@ -1,35 +1,71 @@
 /*
-Autores:
--Aarón Durán Sánchez
--Javier López de Lerma
--Mateo García Fuentes
--Carlos López Martínez
-
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2017, Aarón Durán Sánchez,Javier López de Lerma, Mateo García Fuentes, Carlos López Martínez 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package pokertrainer.view;
 
 import javax.swing.ImageIcon;
 
 /**
- *
+ * Clase de la vista que define el panel de las cartas de un jugador.
  * @author Javi
  */
 public class PlayerCards extends javax.swing.JPanel {
 
     /**
-     * Creates new form PlayerInfo
+     * Constructor de la clase.
      */
     public PlayerCards() {
         initComponents();
     }
     
+    /**
+     * Establece las imágenes de las dos cartas de un jugador.
+     * @param card1 Imagen de la primera carta.
+     * @param card2 Imagen de la segunda carta.
+     */
     public void setCardsImages(ImageIcon card1, ImageIcon card2) {
         this.playerCard1.setCard(card1);
+        this.playerCard1.hideCard();
         this.playerCard2.setCard(card2);
+        this.playerCard2.hideCard();
+    }
+    
+    /**
+     * Muestra las dos cartas de un jugador.
+     */
+    public void showCards(){
+        this.playerCard1.showCard();
+        this.playerCard2.showCard();
+    }
+    
+    /**
+     * Oculta las dos cartas de un jugador.
+     */
+    public void hideCards(){
+        this.playerCard1.hideCard();
+        this.playerCard2.hideCard();
     }
 
     /**
@@ -93,9 +129,20 @@ public class PlayerCards extends javax.swing.JPanel {
     private pokertrainer.view.CardPanel playerCard2;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Oculta el panel de las cartas de un jugador.
+     */
     void disablePanel() {
         this.playerCard1.disablePanel();
         this.playerCard2.disablePanel();
         this.setVisible(false);
+    }
+    
+    /**
+     * Método que repinta todos los componentes
+     */
+    void repaintAll() {
+        this.playerCard1.repaint();
+        this.playerCard2.repaint();
     }
 }

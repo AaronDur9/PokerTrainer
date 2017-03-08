@@ -1,46 +1,63 @@
 /*
-Autores:
--Aarón Durán Sánchez
--Javier López de Lerma
--Mateo García Fuentes
--Carlos López Martínez
-
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2017, Aarón Durán Sánchez,Javier López de Lerma, Mateo García Fuentes, Carlos López Martínez 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package pokertrainer.view;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import pokertrainer.controller.MainWindowController;
 
 /**
- *
+ * Clase de la vista que define la ventana de inicio de la aplicación.
  * @author Javi
  */
-public class MainWindow extends javax.swing.JDialog {
+public class MainWindow extends javax.swing.JFrame {
     
     private MainWindowController mcntr;
 
+    
     /**
-     * Creates new form MainWindow
+     * Constructor que llama al constructor de la clase padre.
+     * @param modal Si la ventana será modal o no.
+     * @param mc Controlador de la ventana principal.
      */
-    
-    public MainWindow() {
-        this(null, true, null);
-    }
-    
-    public MainWindow(java.awt.Frame parent, boolean modal, MainWindowController mc) {
-        super(parent, modal);
-        setTitle("PokerTrainer");
+    public MainWindow(boolean modal, MainWindowController mc) {
         this.mcntr = mc;
         initComponents();
-        initEvents();
         this.getContentPane().setBackground(Color.BLACK);
+        this.setResizable(false);
     }
+    /**
+     * Constructor de la clase.
+     */
+    public MainWindow() {
+        this(true, null);
+        
+        this.pack();
+    }
+    
+    
     
 
     /**
@@ -58,6 +75,7 @@ public class MainWindow extends javax.swing.JDialog {
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("PokerTrainer");
         setBackground(new java.awt.Color(0, 0, 0));
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setPreferredSize(new java.awt.Dimension(1015, 694));
@@ -130,51 +148,18 @@ public class MainWindow extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    
+    /**
+     * Método que inicia la aplicación con el número de jugadores seleccionado al pulsar el botón de inicio .
+     * @param evt Evento que provoca la ejecución de este método.
+     */
     private void jButtonPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayActionPerformed
-        // TODO add your handling code here:
+        int numPlayers = jSliderNumberPlayers.getValue();
+        dispose();
+        mcntr.start(numPlayers);
     }//GEN-LAST:event_jButtonPlayActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                MainWindow dialog = new MainWindow(new javax.swing.JFrame(), true, new MainWindowController());
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonPlay;
@@ -182,14 +167,4 @@ public class MainWindow extends javax.swing.JDialog {
     private javax.swing.JSlider jSliderNumberPlayers;
     private pokertrainer.view.TitlePanel titlePanel1;
     // End of variables declaration//GEN-END:variables
-
-    private void initEvents() {
-        jButtonPlay.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-              int numPlayers = jSliderNumberPlayers.getValue();
-              mcntr.start(numPlayers);
-            }
-        });
-    }
 }

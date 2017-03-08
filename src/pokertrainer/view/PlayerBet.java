@@ -1,39 +1,59 @@
 /*
-Autores:
--Aarón Durán Sánchez
--Javier López de Lerma
--Mateo García Fuentes
--Carlos López Martínez
-
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2017, Aarón Durán Sánchez,Javier López de Lerma, Mateo García Fuentes, Carlos López Martínez 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package pokertrainer.view;
 
 import java.awt.Color;
 
 /**
- *
+ * Método que define un panel para mostrar la última apuesta de cada jugador.
  * @author Javi
  */
 public class PlayerBet extends javax.swing.JPanel {
 
     /**
-     * Creates new form PlayerInfo
+     * Crea un nuevo panel de apuesta con el foreground de color verde.
      */
     public PlayerBet() {
         initComponents();
         playerBet.setForeground(Color.GREEN);
     }
     
-    
+    /**
+     * Establece la última apuesta realizada.
+     * @param bet Cuantía de la última apuesta.
+     */
     public void setBet(int bet) {
         if (bet != 0) playerBet.setText("" + bet);
         else playerBet.setText("");
+        playerBet.setForeground(Color.GREEN);
     }
     
+    /**
+     * Método que cambia el color a gris cuando un jugador hace Fold.
+     */
     public void setFoldBet(){
         playerBet.setForeground(Color.GRAY);
     }
@@ -76,8 +96,18 @@ public class PlayerBet extends javax.swing.JPanel {
     private javax.swing.JLabel playerBet;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Método que oculta el panel de apuesta.
+     */
     void disablePanel() {
         this.playerBet.setVisible(false);
         this.setVisible(false);
+    }
+    /**
+     * Método que repinta todos los componentes
+     */
+    void repaintAll() {
+        this.playerBet.repaint();
+        playerBet.setForeground(Color.GREEN);
     }
 }

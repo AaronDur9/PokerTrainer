@@ -1,30 +1,46 @@
 /*
-Autores:
--Aarón Durán Sánchez
--Javier López de Lerma
--Mateo García Fuentes
--Carlos López Martínez
-
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2017, Aarón Durán Sánchez,Javier López de Lerma, Mateo García Fuentes, Carlos López Martínez 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package pokertrainer.view;
 
 /**
- *
+ * Clase de la vista que define el panel donde se muestra la cantidad de fichas del bote de la mesa.
  * @author Javi
  */
 public class PotPanel extends javax.swing.JPanel {
 
     /**
-     * Creates new form PlayerInfo
+     * Constructor de la clase que crea un nuevo panel para el bote.
      */
     public PotPanel() {
         initComponents();
     }
-    
+    /**
+     * Modifica el texto del panel que muestra la cantidad de fichas que hay en el bote.
+     * @param moneyPot Cantidad de fichas en el bote.
+     */
     void setPot(int moneyPot) {
         potQuantity.setText(String.valueOf(moneyPot));
     }
@@ -65,6 +81,14 @@ public class PotPanel extends javax.swing.JPanel {
     private javax.swing.JLabel potImage;
     private javax.swing.JLabel potQuantity;
     // End of variables declaration//GEN-END:variables
+    
+    /**
+     * Método que repinta todos los componentes
+     */
+    void repaintAll() {
+        this.potImage.repaint();
+        this.potQuantity.repaint();
+    }
 
    
 }

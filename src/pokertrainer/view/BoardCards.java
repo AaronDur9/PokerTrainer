@@ -1,33 +1,49 @@
 /*
-Autores:
--Aarón Durán Sánchez
--Javier López de Lerma
--Mateo García Fuentes
--Carlos López Martínez
-
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2017, Aarón Durán Sánchez,Javier López de Lerma, Mateo García Fuentes, Carlos López Martínez 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package pokertrainer.view;
 
 import javax.swing.ImageIcon;
 
 /**
- *
+ * Clase de la vista encargada de mostrar las cartas del centro de la mesa.
  * @author Javi
  */
 public class BoardCards extends javax.swing.JPanel {
 
     /**
-     * Creates new form PlayerInfo
+     * Constructor de la clase BoardCards.
      */
     public BoardCards() {
         initComponents();
         hideBoardCards();
     }
     
+    /**
+     * Método que esconde las cartas de la mesa.
+     */
     public void hideBoardCards() {
         cardPanel1.setVisible(false);
         cardPanel2.setVisible(false);
@@ -36,26 +52,36 @@ public class BoardCards extends javax.swing.JPanel {
         cardPanel5.setVisible(false);
     }
     
+    /**
+     * Recibe una carta y una posición (entre 1 y 5) de la mesa, y muestra la carta en dicha posición.
+     * @param card Imagen de la carta
+     * @param numCard Posición de la carta (1º, 2º, 3º, 4º o 5º carta de la mesa).
+     */
     public void setCardImage(ImageIcon card, int numCard) {
        switch(numCard){
            case 1: 
                cardPanel1.setCard(card);
+               cardPanel1.showCard();
                cardPanel1.setVisible(true);
                break;
            case 2: 
                cardPanel2.setCard(card);
+               cardPanel2.showCard();
                cardPanel2.setVisible(true);
                break;
            case 3: 
-               cardPanel3.setCard(card); 
+               cardPanel3.setCard(card);
+               cardPanel3.showCard();
                cardPanel3.setVisible(true);
                break;
            case 4:
-               cardPanel4.setCard(card); 
+               cardPanel4.setCard(card);
+               cardPanel4.showCard();
                cardPanel4.setVisible(true);
                break;
            case 5:
-               cardPanel5.setCard(card); 
+               cardPanel5.setCard(card);
+               cardPanel5.showCard();
                cardPanel5.setVisible(true);
                break;
            default: break;
@@ -168,4 +194,15 @@ public class BoardCards extends javax.swing.JPanel {
     private pokertrainer.view.CardPanel cardPanel4;
     private pokertrainer.view.CardPanel cardPanel5;
     // End of variables declaration//GEN-END:variables
+    
+    /**
+     * Método que repinta todas las cartas
+     */
+    void repaintAll() {
+        this.cardPanel1.repaint();
+        this.cardPanel2.repaint();
+        this.cardPanel3.repaint();
+        this.cardPanel4.repaint();
+        this.cardPanel5.repaint();
+    }
 }

@@ -1,14 +1,27 @@
 /*
-Autores:
--Aarón Durán Sánchez
--Javier López de Lerma
--Mateo García Fuentes
--Carlos López Martínez
-
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2017, Aarón Durán Sánchez,Javier López de Lerma, Mateo García Fuentes, Carlos López Martínez 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package pokertrainer.view;
 
@@ -18,7 +31,7 @@ import javax.swing.border.Border;
 import pokertrainer.model.Role;
 
 /**
- *
+ * Clase de la vista que define el panel con la información de un jugador relativa a su nombre, rol y stack actual.
  * @author Javi
  */
 public class PlayerInfo extends javax.swing.JPanel {
@@ -29,49 +42,99 @@ public class PlayerInfo extends javax.swing.JPanel {
     private final Border win = BorderFactory.createLineBorder(Color.GREEN,5, true);
 
     /**
-     * Creates new form PlayerInfo
+     * Constructor de la clase que crea el panel.
      */
     public PlayerInfo() {
         initComponents();
     }
     
-    
+    /**
+     * Establece la información relativa a un jugador en el panel.
+     * @param money Stack del jugador.
+     * @param name Nombre del jugador.
+     * @param role Rol del jugador.
+     */
     public void setInfo(int money, String name, Role role) {
         setPlayerMoney(money);
         setPlayerName(name);
         setPlayerRole(role);
     }
     
+    /**
+     * Modifica el texto que indica el stack del jugador en el panel.
+     * @param money Stack actual del jugador.
+     */
     public void setPlayerMoney(int money) {
         playerMoney.setText(money + "");
     }
     
+    /**
+     * Modifica el texto que indica el nombre del jugador en el panel.
+     * @param name Nombre del jugador.
+     */
     private void setPlayerName(String name) {
         playerName.setText(name);
     }
     
+    /**
+     * Modifica el texto que indica el rol del jugador en el panel.
+     * @param role Rol actual del jugador.
+     */
     public void setPlayerRole(Role role) {
         playerRol.setText(role.toString());
     }
     
+    /**
+     * Cambia el color del borde del panel para resaltar qué jugador tiene el turno.
+     */
     public void showPanelTurnPlayer(){
         this.jPanel1.setBorder(turn);
     }
     
+    /**
+     * Establece el color por defecto del borde del panel para mostrar que este jugador ya no tiene el turno. 
+     */
     public void disableShowPanelTurnPlayer(){
         this.jPanel1.setBorder(notTurn);
-        this.update(this.getGraphics());
+        if(this != null){
+            try{
+                this.update(this.getGraphics());
+            }catch(NullPointerException e){
+                this.repaint();
+            }
+        }
     }
     
+    /**
+     * Modifica el color del borde del panel para resaltar que el jugador ha hecho Fold.
+     */
     public void setFoldInfo() {
         this.jPanel1.setBorder(fold);
+        if(this != null){
+            try{
+                this.update(this.getGraphics());
+            }catch(NullPointerException e){
+                this.repaint();
+            }
+        }
     }
     
+    /**
+     * Modifica el color del borde del panel para resaltar que el jugador ha ganado un bote.
+     */
     public void setWinnerInfo(){
         this.jPanel1.setBorder(win);
-        this.update(this.getGraphics());
+        if(this != null)
+            try{
+                this.update(this.getGraphics());
+            }catch(NullPointerException e){
+                this.repaint();
+            }
     }
     
+    /**
+     * Elimina la información relativa al stack del jugador.
+     */
     public void setMoneyZero(){
         this.playerMoney.setText("");
     }
@@ -150,12 +213,25 @@ public class PlayerInfo extends javax.swing.JPanel {
     private javax.swing.JLabel playerRol;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Método que oculta el panel de información de un jugador.
+     */
     void disablePanel() {
         this.jPanel1.setVisible(false);
         this.playerMoney.setVisible(false);
         this.playerName.setVisible(false);
         this.playerRol.setVisible(false);
         this.setVisible(false);
+    }
+    
+    /**
+     * Método que repinta todos los componentes
+     */
+    void repaintAll() {
+        this.jPanel1.repaint();
+        this.playerMoney.repaint();
+        this.playerName.repaint();
+        this.playerRol.repaint();
     }
 
     

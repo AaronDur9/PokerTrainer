@@ -1,28 +1,45 @@
 /*
-Autores:
--Aarón Durán Sánchez
--Javier López de Lerma
--Mateo García Fuentes
--Carlos López Martínez
-
-
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2017, Aarón Durán,Javier López, Mateo García, Carlos López 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 package pokertrainer.model;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
-import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.Timer;
 import pokertrainer.controller.GameController;
 
 
 /**
- *
+ * Esta clase define la lógica principal de una partida.
  * @author usuario_local
  */
 public class Board {
@@ -37,15 +54,15 @@ public class Board {
     private int numPlayers;
     private LinkedList<Player> players;
     private LinkedList<Player> handPlayers;
+  
     private LinkedList<Card> boardCards;
     ///
     private LinkedList<Player> playerLoses;
     ///
-    private int numPot;
     private int[] seats;
     private int turn;
-    private int bigBlind;
-    private int smallBlind;
+    private final int bigBlind;
+    private final int smallBlind;
     private int hand;
     private State state;
     private LinkedList<Pot> potList;
@@ -58,6 +75,10 @@ public class Board {
     private int maxBet;
     //Indica el asiento del ultimo en hacer raise
     private int lastToSpeak;
+    private GameController c;
+    private boolean withCap;
+    private int cap;
+    private Timer timer;
     
     
     //Disposición de los asientos segun el numero de jugadores
@@ -73,101 +94,44 @@ public class Board {
 	
     public static final int MONEY = 1000;
     private boolean finished = false;
-    private GameController c;
-	
-    public Board(int numPlayers){
+    //Jugadores que en la anterior mano, sus cartas fueron visibles porque llegaron al showDown
+    //Sirve para saber qué cartas decirles a los bots que fueron visibles
+    private LinkedList<LastWinnerPlayers> playersWithVisibleHand;
+    
+    //Booleano que indica si al menos 2 jugadores llegaron al showdown y se deben mostrar sus cartas.
+    private boolean showCards;
+
+    
+    
+    /**
+     * 
+     * Este es el constructor de la clase Board.
+     * @param customPlayers Lista de tipo y nombre de jugadores que jugarán la partida.
+     *  @param withCap Si está a True se ejecuta el juego con el cap establecido en el parámetro cap
+     * @param cap Límite superior que se puede apostar en una mano
+     */
+    public Board(LinkedList<CustomPlayer> customPlayers, boolean withCap, int cap){
         this.numCardsDeck = NUMBER_CARDS;
         this.bigBlind = BIG_BLIND;
         this.smallBlind = SMALL_BLIND;
         this.burntCards = new LinkedList<>();
-        this.numPot = 0;
         this.state = State.PREFLOP;
         this.turn = 0;
         this.hand = 0;
         this.posSmallBlind = 0;
         this.posBigBlind = 1;
+        this.withCap = withCap;
+        this.cap = cap;
         this.boardCards = new LinkedList<>();
         this.playerLoses = new LinkedList<>();
+        this.playersWithVisibleHand = new LinkedList<>();
         generateDeck();
-        initializePlayers(numPlayers);
-        
-
-        
+        initializePlayers(customPlayers);   
     }
-    /*
-    public Board() {
-        this.numCardsDeck = NUMBER_CARDS;
-        this.bigBlind = BIG_BLIND;
-        this.smallBlind = SMALL_BLIND;
-        this.burntCards = new LinkedList<>();
-        this.state = State.PREFLOP;
-        this.turn = 0;
-        this.hand = 0;
-        this.posSmallBlind = 0;
-        this.posBigBlind = 1;
-        
-        LinkedList<Card> cards1 = new LinkedList<>();
-        Card c1 = new Card(Suit.DIAMONDS, Value.KING);
-        cards1.add(c1);
-        Card c2 = new Card(Suit.SPADES, Value.KING);
-        cards1.add(c2);
-        Card c3 = new Card(Suit.CLUBS, Value.QUEEN);
-        cards1.add(c3);
-        Card c4 = new Card(Suit.HEARTS, Value.QUEEN);
-        cards1.add(c4);
-        Card c5 = new Card(Suit.DIAMONDS, Value.JACK);
-        cards1.add(c5);
-        Card c6 = new Card(Suit.HEARTS, Value.JACK);
-        cards1.add(c6);
-        Card c7 = new Card(Suit.SPADES, Value.TWO);
-        cards1.add(c7);
-        
-       
-        
-        LinkedList<Card> cards2 = new LinkedList<>();
-        Card c8 = new Card(Suit.DIAMONDS, Value.JACK);
-        cards2.add(c8);
-        Card c9 = new Card(Suit.CLUBS, Value.JACK);
-        cards2.add(c9);
-        Card c10 = new Card(Suit.HEARTS, Value.TEN);
-        cards2.add(c10);
-        Card c11 = new Card(Suit.CLUBS, Value.TEN);
-        cards2.add(c11);
-        Card c12 = new Card(Suit.DIAMONDS, Value.TEN);
-        cards2.add(c12);
-        Card c13 = new Card(Suit.SPADES, Value.TEN);
-        cards2.add(c13);
-        Card c14 = new Card(Suit.CLUBS, Value.TWO);
-        cards2.add(c14);
-                
-
-        Player player1 = new Player("Player1", MONEY, 0, Role.NONE, cards1,0);
-        Player player2 = new Player("Player2", MONEY, 0, Role.NONE, cards2,1);
-      
-        this.numPlayers = 2;
-        players = new LinkedList<>();
-        this.players.add(player1);
-        this.players.add(player2);
-        
-
-        this.players.get(0).setHand(getHand(sortHand(cards1)));
-        this.players.get(1).setHand(getHand(sortHand(cards2)));
-        
-          //Una vez que se ha establecido la mano de cada jugador se llama al método que dice quien ha ganado
-        //Se le debe pasar el linkedList de jugadores que juegan la mano
-        
-        System.out.println("Jugador1" + " " + this.players.get(0).getHand());
-        System.out.println("Jugador2" + " " + this.players.get(1).getHand());
-        
-        LinkedList<Player> winners = whoWin(this.players);
-        System.out.print("The winners are: ");
-        for(Player p: winners)
-            System.out.print(p.getName() + " ");
- 
-    }
-      
-    */
     
+    /**
+     * Método que genera la baraja de poker como una lista de 52 cartas.
+     */
     private void generateDeck() {
         this.deck = new LinkedList<>();
        
@@ -185,38 +149,173 @@ public class Board {
         
     }
 
+    /**
+     * Establece el controlador de la partida
+     * @param gameController Objeto <code>GameController</code>
+     */
+    public void setControl(GameController gameController) {
+       this.c = gameController;
+    }
+    /**
+     * Devuelve la cantidad de manos jugadas durante la partida.
+     */
+    public int getNumberOfHand() {
+        return hand;
+    }
     
-    private void initializePlayers(int numPlayers) {
-      this.players = new LinkedList<>();
-      this.numPlayers = numPlayers;
-      this.seats = getSeatsForPlayers(numPlayers);
-      for (int i = 0; i < this.numPlayers; i++) {
-          Player p;
-          if(i==3){
-              p = new PlayerBot("Player" + (i+1), MONEY, seats[i],i);
-          }else{
-              p =  new PlayerHuman("Player" + (i+1), MONEY, seats[i],i);
-          }
-          this.players.add(p);
-      }
+    
+    /**
+     * Método que inicializa los atributos de los jugadores, les asigna su asiento, los añade a la lista de jugadores de la partida e inicia el preflop.
+     * @param customPlayers Lista de jugadores con su información de customización.
+     */
+    private void initializePlayers(LinkedList<CustomPlayer> customPlayers) {
+        this.players = new LinkedList<>();
+        this.numPlayers = customPlayers.size();
+        this.seats = getSeatsForPlayers(numPlayers);
+        for (int i = 0; i < this.numPlayers; i++) {
+            Player p = createPlayer(customPlayers.get(i), seats[i], i);
+            this.players.add(p);
+        }
+        preflop();
+    } 
+    
 
-      preflop();      
-    }   	
+    /**
+     * Crea un objeto de tipo <code>InfoBot</code> con la información que el bot necesita para jugar.
+     * @return Objeto <code>InfoBot</code> creado
+     */
+    public InfoBot createInfoBot() {
+        //Información de los jugadores de la mano para el bot.
+        LinkedList<PlayerInfo> infoPlayers = new LinkedList<>();
+        
+        Player pBot = this.getPlayerTurn();
+        InfoBot info = null;
+        if(pBot != null) {
+            //Clase con la información concreta del bot.
+            PlayerInfo bot = null;
+            HandPlayer h = null;
+            for(Player p: this.handPlayers) {
+
+                //Si la jugada de este jugador fue visible en la anterior ronda se la paso al bot.
+
+                int i = 0;
+                boolean found = false;
+                while(!found && i < this.playersWithVisibleHand.size()) {
+                    if(this.playersWithVisibleHand.get(i).getPlayerName().equals(p.getName())) {
+                        found = true;
+                        h = p.getHand();
+                    }
+
+                    i++;
+                }
+                if(this.getPlayerTurn().equals(p)) 
+                    pBot = p;
+                infoPlayers.add(new PlayerInfo(p.role, p.money, p.action, p.totalBet, h));
+            }
+
+                bot = new PlayerInfo(pBot.role, pBot.money, pBot.action, pBot.totalBet, h);
+
+            int max = 0;
+            int totalPot = 0;
+            for(Pot p: this.potList) {
+                max += p.getBet();
+                totalPot += p.getTotalPot();
+            }
+
+            info = new InfoBot(infoPlayers,bot , this.bigBlind, this.smallBlind, this.boardCards,
+                                        pBot.getCards(), max, totalPot,this.state, this.cap);
+        }
+        else {
+            info = new InfoBot();
+        }
+        
+        return info;
+    }
     
+    /**
+     * Método que devuelve la lista de jugadores que han llegado hasta el final de la mano
+     * @return Lista de jugadores que han llegado hasta el final de la mano 
+     */
+    public LinkedList<Player> getPlayerHands() {
+        this.playersWithVisibleHand.clear();
+        for(Player p: this.potList.getFirst().getPlayers())
+            this.playersWithVisibleHand.add(new LastWinnerPlayers(p.getName(), p.getHand()));
+        return this.potList.getFirst().getPlayers();
+    }
     
+   
     
-      //metodo que realiza el preflop
-    public void preflop(){
+    /**
+     * Método que crea un jugador del tipo correcto (Humano o Bot), le asigna un asiento y su posición en la lista de participantes en la partida.
+     * @param p Información de customización a partir de la que se creará el jugador de la partida.
+     * @param seat Asiento que se asignará al jugador.
+     * @param n Posición en la lista de participantes de la partida.
+     * @return Jugador creado.
+     */
+    private Player createPlayer(CustomPlayer p, int seat, int n){
+        Player player = null;
+        
+        String name = p.getName();
+        int stack = p.getStack();
+        
+        if (p.getMode().equals("HUMAN")) {
+            player = new PlayerHuman(name, stack, seat, n);
+            
+        } else {
+            try {
+                //Reflection con p.NameBot
+                Class bot = Class.forName(PokerTrainer.BOTSPACKAGE + p.getNameClass());
+                BotInterface intelligence = (BotInterface) bot.newInstance();
+                player = new PlayerBot(name, stack, seat, n, intelligence);        
+            } catch (Exception ex) {
+                Logger.getLogger(Board.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }    
+        return player;
+    }
+  
+    
+    /**
+     * Método que inicializa los atributos de juego para una nueva mano (bote,cartas, roles de los jugadores y máxima apuesta realizada).
+     */
+    private void initializeGameForNewHand() {
         //Inicializa el array con el orden en el que hablan
         initializeHandPlayers();
         
         this.boardCards = new LinkedList<>();
         
         this.potList = new LinkedList<>();
-       
-        //Apuestan las ciegas
-        this.potList.add(new Pot(0, 0, new LinkedList<>(), new LinkedList<>()));
         
+        this.potList.add(new Pot(0, 0, new LinkedList<>(), new LinkedList<>()));
+        if(this.players.size() > posSmallBlind)
+            this.players.get(posSmallBlind).setRole(Role.SMALL_BLIND);
+        if(this.players.size() > posBigBlind)
+            this.players.get(posBigBlind).setRole(Role.BIG_BLIND);
+        initializeRole();
+        this.lastToSpeak = -1;
+        this.maxBet = BIG_BLIND;
+    }
+    
+    /**
+     * Método que inicializa el rol para cada jugador
+     */
+    private void initializeRole(){
+        for(int i = 1; i <this.numPlayers - 1; i++){
+            this.players.get((posBigBlind + i) % numPlayers).
+                    setRole(Role.values()[(Role.BIG_BLIND.ordinal() + i) % Role.values().length ]);
+        }
+        
+    }
+        
+    //metodo que realiza el preflop
+    /**
+     * <p>Inicia el preflop de la mano</p>
+     * <p>Reparte 2 cartas a cada jugador, y hace que se apuesten las ciegas.</p>
+     * 
+     */
+    public void preflop(){
+        
+        initializeGameForNewHand();
         
         //Se reparten 2 cartas a cada jugador
         for (Player p: players) {
@@ -224,20 +323,71 @@ public class Board {
             this.burntCards.addAll(cards);
             p.setCards(cards);
         }
-        this.players.get(posSmallBlind).setRole(Role.SMALL_BLIND);
-        this.players.get(posBigBlind).setRole(Role.BIG_BLIND);
-        this.lastToSpeak = -1;
-        this.maxBet = BIG_BLIND;
         
+        //Apuestan las ciegas
         blindsBet();
-        
-            
-       
+    }
+    
+    /**
+     * <p>Inicia el flop de la mano.</p>
+     * <p>Establece el orden en el que hablarán los jugadores, quema una carta y añade 3 cartas a la mesa</p>
+     * @return Lista de cartas de la mesa
+     */
+    public LinkedList<Card> flop() {
+        updateHandPlayers();
+        //quemamos
+        burntCards.addAll(deal(1));
+        //realizamos el flop
+        this.boardCards = deal(3);
+        return this.boardCards;
     }
 
-     //quitamos dinero de las ciegas a cada jugador
-    private void blindsBet() {
+    
+    
+    /**
+     * <p>Inicia el turn de la mano.</p>
+     * <p>Quema una carta y añade la 4º carta de la mesa</p>
+     * @return Última carta añadida a la mesa
+     */
+    public Card turn() {
+        //quemamos
+        burntCards.addAll(deal(1));
+        //realizamos el turn
+        LinkedList<Card> turnCard = deal(1);
+        Card c = turnCard.getFirst();
+        boardCards.add(3,c);
+        return turnCard.peekFirst();
+    }
+    
+    /**
+     * <p>Inicia el river de la mano.</p>
+     * <p>Quema una carta y añade la 5º carta de la mesa</p>
+     * @return Última carta añadida a la mesa
+     */
+    public Card river() {
+        //quemamos
+        burntCards.addAll(deal(1));
+        //realizamos el river
+        LinkedList<Card> riverCard = deal(1);
+        Card c = riverCard.getFirst();
+        boardCards.add(4,c);
+        return riverCard.peekFirst();
+    }
+    
+    /**
+     * Reparte el dinero de la mano a los ganadores y se finaliza esta
+     * @return Lista de botes con una lista de los ganadores de cada bote
+     */
+    public LinkedList<LinkedList<Player>> showdown() {
+        this.finished = true;
         
+        return sharingPots();
+    }
+    
+    /**
+     * Método que hace a los dos jugadores correspondientes apostar las ciegas en cada mano.
+     */
+    private void blindsBet() {
         Player smPlayer = this.players.get(this.posSmallBlind);
         Player bbPlayer = this.players.get(this.posBigBlind);
         refreshBet(smPlayer, this.smallBlind);
@@ -247,6 +397,12 @@ public class Board {
 
     
     //Le paso el dinero que hay que poner y calcula el que debe poner este jugador en concreto
+    /**
+     * <p>Procesa la apuesta de un jugador.</p> 
+     * Actualiza los botes correspondientes según la apuesta y la información del jugador que la realiza.
+     * @param player Jugador que realiza la apuesta
+     * @param bet Cantidad que apuesta el jugador
+     */
     public void refreshBet(Player player, int bet){
         int b = player.bet(bet);
         
@@ -255,24 +411,21 @@ public class Board {
         //Lo que un jugador ya ha apostado aunque le hagan Re-Raise no debe volver a meterlo en
         //el bote.
         int discount = player.getTotalBet();
-        //ACTUALIZAR BOTESSSSSSSSSS
         int i = 0;
         
         while(i < this.potList.size() && b > 0) {
             Pot pot = this.potList.get(i);
             
             int auxBet = pot.getBet();
-            
-            
-            
+       
             if(pot.getPlayers().contains(player)) {
                 //Estas haciendo un raise en un bote que ya habías jugado
                 if((b + discount) > auxBet && (this.potList.size() - 1 == i)) {
-                    pot.removePlayersForRaise(player);
+                    pot.removePlayersForRaise();
                     pot.addPlayers(player);
                     pot.setBet(b+discount);
                     pot.addTotalPot(b);
-                    //this.maxBet = player.getBet() + b;
+                    
                     player.setBetLastPot(b + discount);
                 }
                 discount -= pot.getBet();
@@ -283,17 +436,18 @@ public class Board {
                     
                     //Comprobamos si había algún jugador en allin
                     boolean plaAllIn = false;
-                    //Si el jugador hace un raise y en ese bote había algún jugador/es que estaba allin hay que dividir el bote para este jugador/es
+                    //Si el jugador hace un raise y en ese bote había algún jugador/es que:
                     int j = 0; 
                     while(j < pot.getPlayers().size() && !plaAllIn){
+                         //estaba allin hay que dividir el bote para este jugador/es
                         if(pot.getPlayers().get(j).getMoney() == 0)
                             plaAllIn = true;
+                        
                         j++;
                     }
                     //Si había jugadores en allin dividimos el bote para estos
                     if(plaAllIn) {
-                        
-                        
+
                         int newP = (b + discount) - auxBet;
                         //Y ahora creamos un nuevo bote para el jugador del raise
                         //Este nuevo bote será de la apuesta del jugador menos lo que ha aportado al anterior bote
@@ -323,20 +477,17 @@ public class Board {
                         //Añadimos al jugador del raise en el anterior bote
                         pot.addPlayers(player);
                         player.setBetLastPot(betL);
-                        
-                        
+
                         b = 0;
                         
                     }
                     else {
                         pot.setBet(b+discount);
                         pot.addTotalPot(b); 
-                        //this.maxBet =  b;
+                        
                         //Si hace un raise esta será su apuesta en el último bote que jugó
                         player.setBetLastPot(b + discount);
-
-
-                        pot.removePlayersForRaise(player);
+                        pot.removePlayersForRaise();
                         pot.addPlayers(player);
                     }
                     
@@ -395,7 +546,7 @@ public class Board {
                             if(player != py)
                                 playerForNewpot.add(py);
                             //Y desaparecerá de la lista del anterior bote(ya que ya no aporta dinero en ese bote).
-                            //pot.delPlayerOut(py);
+                            
                             playerForDelete.add(py);
                         }
                         //El caso en el que el dinero del jugador se deba repartir entre el nuevo bote y el antiguo
@@ -420,7 +571,7 @@ public class Board {
                     pla.add(player);
                     //Número de jugadores que jugaban el anterior bote.
                     int numP = pot.getPlayers().size();
-                    //Suma dos veces nuestro jugador?
+                    
                     Pot p = new Pot(newPot + b,(b + discount),pla,playerForNewpot);
                     this.potList.add(i, p);
                     //Ahora modifico el bote que antes ocupaba la posicion i.
@@ -437,6 +588,11 @@ public class Board {
     }
     
     
+    /**
+     * Devuelve el siguiente estado de la partida
+     * @see State
+     * 
+     */
     public State changeState() {
         int n = (this.state.ordinal() + 1 )%6; //% 6
         State t = State.values()[n];
@@ -446,7 +602,7 @@ public class Board {
         this.lastToSpeak = -1;
         this.maxBet = 0;
         
-        //Se debe actualizar cada vez que un jugador hace una apuesta.
+        
         for (Player p: this.handPlayers) {
             p.setBet(0);
         }
@@ -454,104 +610,69 @@ public class Board {
         return this.state;
     }
     
+    /**
+     * 
+     * Devuelve la cantidad de jugadores que siguen jugando la mano 
+     */
     public int getHandPlayersSize() {
         return this.handPlayers.size();
     }
-    
+    /**
+     * Elimina a un jugador de todos los botes de la mano
+     * @param p Jugador a eliminar
+     */
     public void removePlayerFromPots(Player p){
         for (Pot pot: this.potList) {
             pot.getPlayers().remove(p);
         }
     }
     
+    /**
+     * Devuelve la apuesta total realizada por el próximo jugador en hablar
+     * 
+     */
     public int getNextPlayerTotalBet(){
         return handPlayers.get(((this.turn+1)%getHandPlayersSize())).getTotalBet();
     }
-    
+    /**
+     * Actualiza la apuesta máxima de la mano
+     * @param bet Nueva apuesta máxima
+     */
     public void setHighBet(int bet) {
         this.maxBet = bet;
     }
     
-    //Establece como ultimo a hablar el jugador anterior al del turno actual
+    //Establece como último en hablar al jugador anterior al del turno actual
+    /**
+     * Actualiza quien será el último jugador en hablar
+     */
     public void updateLastToSpeak() {
         int t = (this.turn - 1)%handPlayers.size();
         if(t == -1)
            t = this.handPlayers.size() - 1;
         this.lastToSpeak = this.handPlayers.get(t).getNumPlayer();
     }
-            
-    
-    //******************* ACCIONES DE LOS JUGADORES ************************
-    
-    //Accion llamada desde el controller cuando en la vista se hace call o check
-    /*public GameState playerTurnCalls() {
-        Player player = this.handPlayers.get(this.turn);
-       
-        //Calculamos la apuesta que tiene que realizar para hacer el call
-        int actualBet = player.getBet();
-        int betToCall = this.maxBet - actualBet;
-        
-        refreshBet(player, betToCall);
-         
-        if (handPlayers.size() == 1) return GameState.OVER_ALLIN;
-        else return GameState.CONTINUE;
-    }*/
-    
-    //Cuando un jugador hace fold lo eliminamos de todos los botes
-    /*public GameState playerTurnFolds() {
-        GameState state = GameState.CONTINUE;
-
-        //Si tenemos 2 jugadores y uno se ha retirado
-        Player player = getPlayerTurn();
-        for (Pot pot: this.potList) {
-            pot.getPlayers().remove(player);
-        }
-        
-        if(handPlayers.size() == 2 && isLastToSpeak())
-            state = updateCurrentState();
-        else if(handPlayers.size() == 2 && handPlayers.get(((this.turn+1)%handPlayers.size())).getTotalBet() >= this.maxBet)
-            state = updateCurrentState();
-        return state;
-    }*/
+           
     
     //Elimina un jugador de handPlayers, es decir, ese jugador no va a hablar mas
     //eso ocurre cuando hace all-in o hace fold
+    /**
+     * <p>Elimina un jugador de la lista de jugadores de la mano. Ocurre cuando un jugador hace:</p>
+     * <ul><li>All-in (Se mantendrá como participante en los correspondientes botes)</li> <li>Fold</li></ul>
+     * @param p Jugador a eliminar
+     */
     public void removePlayer(Player p) {
-        //Primero eliminas
+        
         handPlayers.remove(p);
-        //Y luego divides
-        if(this.handPlayers.size() >0 )////AÑADIDO POSTERIOR
+        
+        if(this.handPlayers.size() >0 )
              this.turn %= this.handPlayers.size();
     }
     
-    
-    
-    /*public GameState playerTurnRaises(int raiseBet){
-        GameState allin = GameState.CONTINUE;
-        Player player = getPlayerTurn();
-        
-        if(raiseBet > this.maxBet) {
-            this.maxBet = raiseBet;
-            int t = (this.turn - 1)%handPlayers.size();
-            if(t == -1)
-                t = this.handPlayers.size() - 1;
-            this.lastToSpeak = this.handPlayers.get(t).getNumPlayer();
-        }
-        
-        //Restamos la apuesta total que habia realizado 
-        raiseBet -= player.getBet();
-        
-        refreshBet(player, raiseBet);
-        
-        //Si solo quedaba yo por hablar o si yo voy allin y yo era el último jugador en hablar
-        if((handPlayers.size() == 1) || (handPlayers.size() == 2 && player.getMoney() == 0 && isLastToSpeak()))
-            //Compruebo si se debe dar el dinero a un jugador o si se debe mostrar el showdown
-            allin = updateCurrentState();
-        
-        return allin;
-    }*/
-    
-    
+    /**
+     * Devuelve un <code>GameState</code> informando de la situación actual de la mano
+     *  
+     */
     public GameState updateCurrentState() {
         GameState state = GameState.CONTINUE;
         //Si solo quedaba yo por hablar y el único que juega algún bote soy yo
@@ -564,8 +685,12 @@ public class Board {
         return state;
     }
     
-    //Inicializa el array de handPlayers en orden desde BB + 1 hasta BB
-    //Array ordenado en el orden en que hablan los jugadores (Solo valido en preflop)
+    
+    
+    
+    /**
+     * Método que inicializa la lista de jugadores que participan en esta mano en el orden en que hablarán en Preflop.
+     */
      private void initializeHandPlayers() {
         this.handPlayers = new LinkedList<>();
         int i = this.posBigBlind + 1;
@@ -586,19 +711,24 @@ public class Board {
             p.initializePlayer();
     }
 
-    //Mete todas las cartas en el deck
+     
+    
+     /**
+      * Método que introduce las cartas quemadas en la baraja de nuevo.
+      */
     private void reinsertCardsToDeck(){
         this.deck.addAll(this.burntCards);
         this.deck.addAll(this.boardCards);
     }
     
-    /*Inicializa los jugadores asignadoles nombre, dinero, asiento, rol y sus cartas
-        y llama a preflop
-    */
+    
 
-   
-    //Devuelve los asientos donde se sentaran los jugadores
-    private int[] getSeatsForPlayers(int numPlayers) {
+    /**
+     * Devuelve los asientos donde se sentarán los jugadores en función del número de jugadores
+     * @param numPlayers Cantidad de jugadores que van a jugar la partida
+     * @return Array con las posiciones de los jugadores
+     */
+    public static int[] getSeatsForPlayers(int numPlayers) {
         int[] seatsForPlayers = null;
         switch (numPlayers) {
             case 2: seatsForPlayers = TWO; break;
@@ -614,42 +744,68 @@ public class Board {
         return seatsForPlayers;
     }
 
+    /**
+     * 
+     * Devuelve los jugadores de la partida 
+     */
     public LinkedList<Player> getPlayers() {
         return this.players;
     }
 
     
-    //Devuelve el jugador al que le toca jugar
+    /**
+     * Devuelve el jugador al que le toca hablar
+     */
     public Player getPlayerTurn() {
         return this.handPlayers.get(turn);
     }
     
-    //Devuelve la apuesta máxima
+    
+    /**
+     * Devuelve la apuesta máxima de la mano
+     */
     public int getHighBet() {
         return this.maxBet;
     }
     
+    /**
+     * Devuelve la ciega grande
+     */
     public int getBigBlind() {
         return bigBlind;
     }
-
+    /**
+     * Devuelve la ciega pequeña
+     */
     public int getSmallBlind() {
         return smallBlind;
     }
 
+    
+    /**
+     * Devuelve la cantidad total acumulada en todos los botes de una mano
+     */
     public int getSumOfPots(){
         int sumPots = 0;
-        for(Pot p : this.potList){
+        for (Pot p : this.potList) {
             sumPots += p.getTotalPot();
         }
         return sumPots;
     }
     
+    /**
+     * Devuelve los asientos de los jugadores
+     */
     public int[] getSeats() {
         return this.seats;
     }
     
-    //generamos semillas de random
+   
+    /**
+     * Método que reparte el número de cartas recibido por parámetro de manera aleatoria.
+     * @param numCards Número de cartas a repartir.
+     * @return Lista de cartas repartidas.
+     */
     private LinkedList<Card> deal(int numCards) {
         LinkedList<Card> cards = new LinkedList<>();
         Random rndGenerated = new Random();
@@ -662,20 +818,12 @@ public class Board {
         return cards;
     }
    
-  
-    
-   
 
-    //metodo que realiza el flop
-    public LinkedList<Card> flop() {
-        updateHandPlayers();
-        //quemamos
-        burntCards.addAll(deal(1));
-        //realizamos el flop
-        this.boardCards = deal(3);
-        return this.boardCards;
-    }
     
+    
+    /**
+     * Método que modifica el orden de los jugadores que participan en una mano para jugar el Flop.
+     */
     private void updateHandPlayers() {
         LinkedList<Player> oldHandPlayers = this.handPlayers;
         LinkedList<Player> newHandPlayers = new LinkedList<>();
@@ -694,34 +842,27 @@ public class Board {
         this.handPlayers = newHandPlayers;
         
     }
-
     
-    //metodo que genera el turn(4 Carta) habiendo quemado previamente una carta
-    public Card turn() {
-        //quemamos
-        burntCards.addAll(deal(1));
-        //realizamos el turn
-        LinkedList<Card> turnCard = deal(1);
-        Card c = turnCard.getFirst();
-        boardCards.add(3,c);
-        return turnCard.peekFirst();
+    /**
+     * Método que devuelve si al menos 2 jugadores llegaron al showdown y por lo tanto se deben mostrar sus cartas.
+     */
+    public boolean isShowCards() {
+        return showCards;
     }
     
-    //metodo que genera el river(5 Carta) habiendo quemado previamente una carta
-    public Card river() {
-        //quemamos
-        burntCards.addAll(deal(1));
-        //realizamos el river
-        LinkedList<Card> riverCard = deal(1);
-        Card c = riverCard.getFirst();
-        boardCards.add(4,c);
-        return riverCard.peekFirst();
-    }
-    
+    /**
+     * Método que recorre la lista de botes de una mano, obtiene los ganadores de cada bote y reparte las fichas de los botes.
+     * @return Lista de botes que cada posición mantiene una lista de jugadores que ganaron ese bote.
+     */
     private LinkedList<LinkedList<Player>> sharingPots() {
         LinkedList<LinkedList<Player>> winnersPerPot = new LinkedList<>();
-        //winnersPerPot.add(new LinkedList<>());
-        //BIEN
+        
+        if(this.potList.getFirst().getPlayers().size() > 1)
+            this.showCards = true;
+        else
+            this.showCards = false;
+        
+        
         int i=0;
         for(Pot pot: this.potList){
             LinkedList<Player> potWinners = new LinkedList<Player>();
@@ -731,58 +872,65 @@ public class Board {
             else
                 potWinners = getWinners(pot.getPlayers(), i);
             
+            
+            
             int cashPerPlayer = pot.getTotalPot()/potWinners.size();
             for(Player p: potWinners){
                 p.incrMoney(cashPerPlayer);
-                /////////DEPURACIÓN/////////////
-                if(p.getHand() != null) {
-                    System.out.println("Winner del bote " + i + " " + p.getName() + " Jugada: " + p.getHand().toString());
-                    System.out.println(cashPerPlayer);
-                    for(Card c : p.getCards()) {
-                        System.out.print(" " + c.toString() + " ");                  
-                    }
-                    System.out.println();
-                }
                 
-                /////////FIN DEPURACIÓN////////////
+                
+               
             }
             winnersPerPot.addLast(potWinners);
             i++;
-        }
         
-        return winnersPerPot;
+        
+        }
+       return winnersPerPot;
     }
     
+    
+    
       
-    //CAMBIAD CARLOS JAVI SOLO SE PUEDE HACER UNA  EZ MONGOLES DE ALBA
+    /**
+     * Método que obtiene los ganadores de un determinado bote.
+     * @param playersPot Jugadores que participaron en ese bote.
+     * @param numPot Posición del bote.
+     * @return Lista de ganadores de este bote.
+     */
     private LinkedList<Player> getWinners(LinkedList<Player> playersPot, int numPot){
-       //Se llama una vez por bote
+       
        if(numPot == 0)
         for (Player p: playersPot) {
              LinkedList<Card> hand = p.getCards();   
              hand.addAll(this.boardCards);  
+             //Obtenemos la jugada del jugador
              p.setHand(getHand(sortHand(hand))); 
          }
         
-        //Una vez que se ha establecido la mano de cada jugador se llama al método que dice quien ha ganado
-        //Se le debe pasar el linkedList de jugadores que juegan la mano
+        
         return whoWin(playersPot);
     }
     
+    
+    /**
+     * Método que incrementa el stack de un jugador.
+     * @param incrMoney Cantidad de fichas que aumentar.
+     * @param p Jugador al que aumentar el stack.
+     */
     private void incrPlayerPot(int incrMoney, Player p) {
         p.incrMoney(incrMoney);
     }
     
     
-    public LinkedList<LinkedList<Player>> showdown() {
-        this.finished = true;
-        
-        //LinkedList<Player> winners = getWinners();
-        //Se mira quienes son los ganadores y se reparte el bote
-        return sharingPots();
-    }
+    
     
     //Devuelve si la partida ha acabado
+    /**
+     * <p>Prepara una nueva mano si la partida no ha acabado</p>
+     * 
+     * @return Objeto State que indica si la partida ha terminado
+     */
     public State tryNewHand() {
         
         reinsertCardsToDeck();
@@ -791,15 +939,6 @@ public class Board {
         this.burntCards = new LinkedList<>();
         this.numCardsDeck = NUMBER_CARDS;
         
-        //Se mira cuantos jugadores tienen mas de 0 de dinero
-       /* for (Player p: this.players) {
-            if (p.getMoney() == 0) {
-                //Se elimina a los jugadores del array
-                this.players.remove(p);
-                this.numPlayers--;
-            }
-        }*/
-       
        ListIterator<Player> it = this.players.listIterator();
         while(it.hasNext()){
             Player p = it.next();
@@ -819,8 +958,6 @@ public class Board {
             //Se incrementa la mano y se cambia el estado a preflop
             this.hand++;
             
-            this.players.get(posSmallBlind).setRole(Role.NONE);
-            
             posSmallBlind = (posSmallBlind + 1 )%this.numPlayers;
             posBigBlind = (posBigBlind + 1)%this.numPlayers;
             this.state = State.PREFLOP;
@@ -828,7 +965,7 @@ public class Board {
             for (Player p: players) {
                 p.setBet(0);
             }
-            //preflop();
+            
         }
         
         return this.state;
@@ -836,57 +973,50 @@ public class Board {
     }
     
     
-    //Cambiar el turno
+    /**
+     * Cambia el turno del jugador al que le toca hablar
+     */
     public void changeTurn() {
         this.turn++;
         this.turn %= this.handPlayers.size();
     }
     
-    
-    
-    
+    /**
+     * Devuelve si un jugador es el útimo en hablar 
+     */
     public boolean isLastToSpeak() {
-       
         return ((lastToSpeak == -1 && handPlayers.getLast() == getPlayerTurn()) 
                 || (lastToSpeak != -1 && handPlayers.get((this.turn)).getNumPlayer() == lastToSpeak));
     }
     
+    /**
+     * Devuelve si la partida ha terminado
+     */
     public boolean isFinished() {
         return this.finished;
     }
 
+    /**
+     * Devuelve la lista de jugadores que ya no jugarán en la partida
+     */
     public LinkedList<Player> getPlayerLoses() {
         return playerLoses;
     }
     
-    
-    
-    
-    
-    
-    
-     
-    
-    /*
-    //Imprime por consola la mejor jugada de cada jugador
-    public void GetBestHandOfEachPlayer() {
-        for (int i = 0; i < this.numPlayers; i++) {
-            LinkedList<Card> hand = this.players.get(i).getCards();   
-            hand.addAll(this.boardCards);  
-            this.players.get(i).setHand(getHand(sortHand(hand)));
-            System.out.println("Jugador " + (i+1) + " " + this.players.get(i).getHand());
-            }
-        
-        //Una vez que se ha establecido la mano de cada jugador se llama al método que dice quien ha ganado
-        //Se le debe pasar el linkedList de jugadores que juegan la mano
-        LinkedList<Player> winners = whoWin(this.players);
-        System.out.print("The winners are: ");
-        for(Player p: winners)
-            System.out.print(p.getName() + " ");
+    /**
+     * Devuelve la lista de jugadores que han participado en una mano para mostrar sus cartas.
+     */
+    public LinkedList<Player> getPlayersToShowCards(){
+        return this.potList.get(0).getPlayers();
     }
-    */
+    
     
     //Devuelve un LinkedList de Players para el caso que haya empate
+    /**
+     * Método que dada una lista de jugadores analiza sus jugadas y devuelve el ganador (o ganadores en caso de empate).
+     * @param boardPlayers Jugadores que participan
+     * @return Lista de ganadores.
+     */
     private LinkedList<Player> whoWin(LinkedList<Player> boardPlayers) {
         LinkedList<Player> winners = new LinkedList<>();
         winners.push(boardPlayers.getFirst());
@@ -909,7 +1039,14 @@ public class Board {
         return winners;
     }
     
+    
     //Devuelve el ganador de estas dos manos (o empate).
+    /**
+     * Método que recibe 2 jugadas y devuelve cuál de las dos es mejor (o si son iguales).
+     * @param h1 Jugada del primer jugador
+     * @param h2 Jugada del segundo juagdor
+     * @return Enumerado que indica si la primera jugada es mejor, si lo es la segunda o si han empatado.
+     */
     private HandComparator compareTwoHands(HandPlayer h1, HandPlayer h2) {
         HandComparator winner = HandComparator.DRAW;
         
@@ -932,7 +1069,7 @@ public class Board {
                 
                 else  { //2 casos: Si tiene secondValue y si no tiene secondValue
                     
-                    //1 - SI tiene SecondValue
+                    //1 - Si tiene SecondValue
                     if(h1.getSecondV() != null && h2.getSecondV() != null) {
                         if(h1.getSecondV().ordinal() > h2.getSecondV().ordinal())
                             winner = HandComparator.FIRST;
@@ -971,11 +1108,15 @@ public class Board {
         return winner;
     }
     
-    
+    /**
+     * Método que compara el valor de dos listas de cartas y devuelve qué valor es mayor.
+     * @param p1 Lista de cartas sueltas del primer jugador.
+     * @param p2 lista de cartas sueltas del segundo jugador.
+     * @return Enumerado que indica si la primera lista es mejor, si lo es la segunda o si han empatado.
+     */
     private HandComparator compareSingleCards(LinkedList<Value> p1, LinkedList<Value> p2) {
         HandComparator winner = HandComparator.DRAW;
         int i = 0;
-        
         
         while(winner == HandComparator.DRAW && i < p1.size()) {
             if(p1.get(i).ordinal() > p2.get(i).ordinal())
@@ -988,55 +1129,64 @@ public class Board {
         return winner;
     }
     
-    
+    /**
+     * Método que ordena las cartas de un jugador por el valor de estas.
+     * @param cards Lista de cartas de un jugador.
+     * @return Lista de cartas ordenadas.
+     */
     private LinkedList<Card> sortHand(LinkedList<Card> cards) {
       Collections.sort(cards, Collections.reverseOrder());
       return cards;
     }
 
-   //Suponemos que siempre nos dan el array de cartas ordenado
-    //por el valor de la carta (considerando Ace la más alta)
+   
+    /**
+     * <p>Método que recibe una lista con las 7 cartas de un jugador ordenadas por valor de las cartas.</p>
+     * Analiza las cartas buscando parejas, tríos, escaleras o colores. Y finalmente mezcla lo encontrado para determinar la mejor jugada de su mano.
+     * @param cards Lista de cartas del jugador ordenadas. 
+     * @return Objeto <code>HandPlayer</code> con la jugada del jugador.
+     */
     private HandPlayer getHand(LinkedList<Card> cards) {
-        //System.out.println(cards.toString());
+       
         int length = cards.size();
         HandPlayer bestHand = null;
         if(length > 0){            
             //Obtenemos la posición en el enumerado de la primera carta
             Card current = cards.get(0);
             LinkedList<Value> singleCards = new LinkedList<>();
-            //value
+            
             Value highStr = null;
             Value highStrFlushH = null, highStrFlushC = null, highStrFlushD = null, highStrFlushS = null;
             int straightCont = 1; 
             int strFlushContH = 0, strFlushContC = 0, strFlushContD = 0, strFlushContS = 0;
             int flushContH = 0, flushContC = 0, flushContD = 0, flushContS = 0;
             int repCont = 1;
-            //Current strFlush
+            
             Value currentH = null, currentC = null, currentD = null, currentS = null;
             Value highFlushH = null, highFlushC = null, highFlushD = null, highFlushS = null;
             bestHand = new HandPlayer(HandCategories.HIGH_CARD);
-            //bestHand.setMainV(cards.get(0).getVal());
+            
             
             switch (cards.get(0).getSuit()) {
                 case CLUBS:
                     flushContC = 1;
                     highFlushC = cards.get(0).getVal();
-                    //strFlushContC = 1;
+                    
                     break;
                 case DIAMONDS:
                     flushContD = 1;
                     highFlushD= cards.get(0).getVal();
-                    //strFlushContD = 1;
+                    
                     break;
                 case HEARTS:
                     flushContH = 1;
                     highFlushH = cards.get(0).getVal();
-                    //strFlushContH = 1;
+                 
                     break;
                 case SPADES:
                     flushContS = 1;
                     highFlushS = cards.get(0).getVal();
-                    //strFlushContS = 1;
+                    
                     break;
                 default:
                     break;
@@ -1045,8 +1195,8 @@ public class Board {
             for(int i = 1; i < length; i++) {
                 
                 /////////////BUSCAR PAREJAS//////////////////////////////
-                //Si me encuentro varias cartas iguales incremento el contador
-                //hasta que me encuentre alguna diferente.
+                //Si encuentro varias cartas iguales incremento el contador
+                //hasta que encuentre alguna diferente.
                 if(cards.get(i).getVal() == current.getVal()) {
                     repCont++;
                 }
@@ -1056,7 +1206,7 @@ public class Board {
                     if(repCont == 1 && singleCards.size() < 5) {
                         singleCards.addLast(current.getVal());
                         //Las cartas que aparezcan una sola vez las insertamos 
-                        //al final del array finalHand y serán eliminadas
+                        //al final del array sinleHand y serán eliminadas
                         //si hay mejores jugadas
                     }
                     else if(repCont == 2 || repCont == 3 || repCont == 4) {              
@@ -1099,7 +1249,7 @@ public class Board {
                 }
                 /////////////FIN BUSCAR ESCALERAS//////////////////////////////
                 /////////////BUSCAR ESCALERA DE COLOR//////////////////////////
-                //falta A a 5
+                
                 
                 //////HEARTS/////////////////
                 if(strFlushContH == 0 && current.getSuit() == Suit.HEARTS) {
@@ -1270,7 +1420,7 @@ public class Board {
                 /////////////FIN BUSCAR ESCALERAS DE COLOR/////////////////
                 
                 
-                //La primera vez que me encuentro una carta de un palo lo inicializo
+       
                 
                 
                 /////////////BUSCAR COLOR/////////////////////////////////
@@ -1343,14 +1493,14 @@ public class Board {
                 case POKER:
                     if(!singleCards.isEmpty())
                         bestHand.addLastCards(singleCards.getFirst());
-                    else  //La carta que debería ser el kicker para el poker
+                    else  //La carta kicker para el poker
                           //podría no estar en singleCards si formara una pareja o trío.
                         bestHand.addLastCards(findTheKicker(bestHand, cards));
                     break;
                 case TWO_PAIR:
                     if(!singleCards.isEmpty())
                         bestHand.addLastCards(singleCards.getFirst());
-                    else  //Porque puede haber 3 parejas y no estar en singleCards
+                    else  //Puede haber 3 parejas y no estar en singleCards
                         bestHand.addLastCards(cards.get(4).getVal());
                     break;
                 case THREE_KIND:
@@ -1376,13 +1526,28 @@ public class Board {
         return bestHand;
     }
     
+    /**
+     * <p>Método que recibe el valor de la última carta analizada del jugador, la cantidad de veces que ha encontrado esa carta y la mejor jugada encontrada hasta ahora.</p>
+     * Utilizando esta información devuelve la mejor jugada encontrada hasta ahora.
+     * @param currentVal Valor de la última carta analizada de la mano del jugador.
+     * @param repCont Número de veces que ha encontrado el valor de esa carta en la mano.
+     * @param bestHand Mejor mano encontrada hasta ahora.
+     * @return Mejor valor resultante tras analizar la información recibida por parámetro.
+     */
     private HandPlayer giveMeBestHand(Value currentVal, int repCont, HandPlayer bestHand){
         HandCategories currentHand = getCurrentHand(repCont);
         bestHand = decideBetterHand(bestHand,currentHand, currentVal);
         return bestHand;
     }
     
-    //Encuentra parejas,dobles, trios, full y poker.
+    
+    /**
+     * Método que recibe dos jugadas encontradas en una mano y decide cuál de las dos es mejor, o si ambas se pueden mezclar para hacer una jugada mejor.
+     * @param bestHand Mejor jugada encontrada hasta ahora
+     * @param current Última jugada encontrada.
+     * @param currentVal Valor de la carta que ha formado la última jugada encontrada.
+     * @return Mejor jugada posible utilizando las recibidas por parámetro. 
+     */ 
     private HandPlayer decideBetterHand(HandPlayer bestHand, HandCategories current
                                             ,Value currentVal) {
        
@@ -1416,6 +1581,12 @@ public class Board {
         return bestHand;
     }   
     
+    
+    /**
+     * Método que devuelve si hemos encontrado una pareja, trío o Poker por la cantidad de veces que aparece el valor de una carta en una mano.
+     * @param cont Número de veces que aparece el valor de una carta en una mano.
+     * @return Jugada que forma la repetición del valor de esa carta.
+     */
    private HandCategories getCurrentHand(int cont){
         HandCategories hand = null;
         switch (cont) {
@@ -1445,10 +1616,16 @@ public class Board {
         return hand;
     }
    
+   
+   /**
+    * Método que recorre las cartas de un jugador para encontrar los valores de las cartas que forman la jugada "Color".
+    * @param cards Lista de cartas del jugador.
+    * @param s Palo del que hay 5 o más cartas.
+    * @return Lista de valores de cartas que forman la jugada "Color".
+    */
    private LinkedList<Value> getFlushCards(LinkedList<Card> cards, Suit s) {
        
        int i = cards.size() - 1;
-       //int cont = 0;
        LinkedList<Value> flush = new LinkedList<>();
        while (i >= 0 && flush.size() < 5) {           
            if(cards.get(i).getSuit() == s) 
@@ -1459,6 +1636,12 @@ public class Board {
        return flush;
    }  
    
+   /**
+    * Método que recorre las cartas de un jugador en busca del "Kicker".
+    * @param hp Mejor jugada de la mano del jugador.
+    * @param cards Lista de cartas del jugador.
+    * @return Carta que es el Kicker de la jugada.
+    */
    private Value findTheKicker(HandPlayer hp, LinkedList<Card> cards){
       int i = 0;
       Value v;
@@ -1468,13 +1651,49 @@ public class Board {
       v = cards.get(i).getVal();
       return v;
    }
-
-    public int getNumberOfHand() {
-        return hand;
-    }
-
-    public void setControl(GameController gameController) {
-       this.c = gameController;
-    }
    
+   /**
+    * Método que arranca el timer del jugador con el turno
+    */
+   public void initTimerBoard(){
+        this.timer = new Timer(1000, new ActionListener() {
+              
+            private int cont = 30;
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    c.updateCounter();
+                    cont--;
+                    if (cont == 0){
+                        c.playerFolds();
+                    }
+                }
+             });
+        this.timer.start();
+    }
+    
+   /**
+    * Método que para el timer del jugador con el turno
+    */
+    public void stopTimerBoard(){
+        this.timer.stop();
+    }
+   /**
+    * Método que dice si hay timer o no
+    */
+    public boolean timer(){
+        if(this.timer == null)
+            return false;
+        return true;
+    }
+    
+    /**
+    * Método que dice si el timer está corriendo
+    */
+    public boolean running(){
+        if(timer()){
+            if(this.timer.isRunning()) return true;
+            return false;
+        }
+        return false;
+    }
 }
