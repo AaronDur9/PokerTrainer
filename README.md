@@ -9,6 +9,7 @@ Una vez asignado el número de jugadores, se podrán customizar los siguientes p
   ● Stack inicial de cada jugador (por defecto 1000 y como mínimo 1)
   
   ● Si será bot o humano
+  
     ○ En caso de ser bot se debe seleccionar la clase con su código fuente dentro del directorio de bots (botsDirectory).
 En esta misma ventana se podrá seleccionar si las cartas de los bots serán visibles o no durante la partida, y ofrece la posibilidad de establecer un límite a las apuestas de los jugadores durante una mano (CAP: por defecto y como mínimo 100).
 
